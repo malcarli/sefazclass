@@ -19,6 +19,7 @@ CREATE CLASS ESocialClass
    VAR    cXmlDocumento  INIT ""
    VAR    cXmlEnvelope   INIT ""
    VAR    cXmlRetorno    INIT ""
+   VAR    cAmbiente      INIT [1]  // 1 - Produção 2 - Homologação
    METHOD ConsultaRetornoLote( cChave, cCertificado )
    METHOD MicrosoftXmlSoapPost()
 
@@ -29,7 +30,11 @@ METHOD ConsultaRetornoLote( cChave, cCertificado ) CLASS ESocialClass
    IF cCertificado != NIL
       ::cCertificado := cCertificado
    ENDIF
-   ::cUrl          := "https://webservices.producaorestrita.esocial.gov.br/servicos/empregador/consultarloteeventos/WsConsultarLoteEventos.svc"
+   If ::cAmbiente == [1]
+      ::cUrl:= "https://webservices.consulta.esocial.gov.br/servicos/empregador/consultarloteeventos/WsConsultarLoteEventos.svc"
+   Else
+      ::cUrl:= "https://webservices.producaorestrita.esocial.gov.br/servicos/empregador/consultarloteeventos/WsConsultarLoteEventos.svc"
+   Endif
    ::cSOAPAction   := "http://www.esocial.gov.br/servicos/empregador/lote/eventos/envio/consulta/retornoProcessamento/v1_1_0/ServicoConsultarLoteEventos/ConsultarLoteEventos"
    ::cXmlDocumento := ;
       [<eSocial xmlns="http://www.esocial.gov.br/schema/lote/eventos/envio/consulta/retornoProcessamento/v1_0_0">] + ;
