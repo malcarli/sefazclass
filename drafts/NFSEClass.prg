@@ -1,6 +1,6 @@
 /*
-ZE_SPEDSEFAZCLASS - Rotinas pra comunicaÁ„o com SEFAZ
-JosÈ Quintas
+ZE_SPEDSEFAZCLASS - Rotinas pra comunica√ß√£o com SEFAZ
+Jos√© Quintas
 */
 
 #include "hbclass.ch"
@@ -19,23 +19,23 @@ JosÈ Quintas
 
 CREATE CLASS SefazClass
 
-   /* configuraÁ„o */
+   /* configura√ß√£o */
    VAR    cAmbiente      INIT WS_AMBIENTE_PRODUCAO
-   VAR    cUF            INIT "SP"                    // Modificada conforme mÈtodo
+   VAR    cUF            INIT "SP"                    // Modificada conforme m√©todo
    VAR    cCertificado   INIT ""                      // Nome do certificado
    VAR    nTempoEspera   INIT 7                       // intervalo entre envia lote e consulta recibo
    /* XMLs de cada etapa */
    VAR    cXmlDocumento  INIT ""                      // O documento oficial, com ou sem assinatura, depende do documento
    VAR    cXmlEnvio      INIT ""                      // usado pra criar/complementar XML do documento
-   VAR    cXmlSoap       INIT ""                      // XML completo enviado pra Sefaz, incluindo informaÁıes do envelope
+   VAR    cXmlSoap       INIT ""                      // XML completo enviado pra Sefaz, incluindo informa√ß√µes do envelope
    VAR    cXmlRetorno    INIT "Erro Desconhecido"     // Retorno do webservice e/ou rotina
    VAR    cXmlProtocolo  INIT ""                      // XML protocolo (obtido no consulta recibo e/ou envio de outros docs)
    VAR    cXmlAutorizado INIT ""                      // XML autorizado, caso tudo ocorra sem problemas
    VAR    cStatus        INIT Space(3)                // Status obtido da resposta final da Fazenda
    /* uso interno */
-   VAR    cSoapService   INIT ""                      // webservice ServiÁo
+   VAR    cSoapService   INIT ""                      // webservice Servi√ßo
    VAR    cSoapAction    INIT ""                      // webservice Action
-   VAR    cSoapURL       INIT ""                      // webservice EndereÁo
+   VAR    cSoapURL       INIT ""                      // webservice Endere√ßo
 
    METHOD EnvioLoteRPS( cXml, cCertificado, cAmbiente )
 
@@ -58,9 +58,9 @@ METHOD EnvioLoteRPS( cXml, cCertificado, cAmbiente ) CLASS SefazClass
 METHOD Setup( cCertificado, cAmbiente, nWsServico ) CLASS SefazClass
 
    LOCAL nPos, aSoapList := { ;
-      { WS_CANCELAMENTONFE,  "CancelamentoNFe", "http://www.prefeitura.sp.gov.br/nfe/ws/cancelamentoNFe", "https://naosei" }, ;
+      { WS_CANCELAMENTONFE,  "CancelamentoNFe", "http://www.prefeitura.sp.gov.br/nfe/ws/cancelamentoNFe", "https://nfe.prefeitura.sp.gov.br/ws/lotenfe.asmx" }, ;
       { WS_ENVIOLOTERPS,     "EnvioLoteRPS",    "http://www.prefeitura.sp.gov.br/nfe/ws/envioLoteRPS", "https://nfe.prefeitura.sp.gov.br/ws/lotenfe.asmx" } }
-
+ 
    ::cCertificado := iif( cCertificado == Nil, ::cCertificado, cCertificado )
    ::cAmbiente    := iif( cAmbiente == Nil, ::cAmbiente, cAmbiente )
 
@@ -79,13 +79,13 @@ METHOD XmlSoapPost() CLASS SefazClass
 
    DO CASE
    CASE Empty( ::cSoapURL )
-      ::cXmlRetorno := "Erro SOAP: N„o h· endereÁo de webservice"
+      ::cXmlRetorno := "Erro SOAP: N√£o h√° endere√ßo de webservice"
       RETURN Nil
    CASE Empty( ::cSoapService )
-      ::cXmlRetorno := "Erro SOAP: N„o h· nome do serviÁo"
+      ::cXmlRetorno := "Erro SOAP: N√£o h√° nome do servi√ßo"
       RETURN Nil
    CASE Empty( ::cSoapAction )
-      ::cXmlRetorno := "Erro SOAP: N„o h· endereÁo de SOAP Action"
+      ::cXmlRetorno := "Erro SOAP: N√£o h√° endere√ßo de SOAP Action"
       RETURN Nil
    ENDCASE
    ::XmlSoapEnvelope()
@@ -127,7 +127,7 @@ METHOD MicrosoftXmlSoapPost() CLASS SefazClass
       IF ::cCertificado != Nil
          oServer:setOption( 3, "CURRENT_USER\MY\" + ::cCertificado )
       ENDIF
-      ::cXmlRetorno := "Erro: Na conex„o com webservice " + ::cSoapURL
+      ::cXmlRetorno := "Erro: Na conex√£o com webservice " + ::cSoapURL
       oServer:Open( "POST", ::cSoapURL, .F. )
       oServer:SetRequestHeader( "SOAPAction", cSoapAction )
       oServer:SetRequestHeader( "Content-Type", "application/soap+xml; charset=utf-8" )
@@ -150,7 +150,7 @@ METHOD MicrosoftXmlSoapPost() CLASS SefazClass
    ELSEIF "<soapenv:Body>" $ ::cXmlRetorno .AND. "</soapenv:Body>" $ ::cXmlRetorno
       ::cXmlRetorno := XmlNode( ::cXmlRetorno, "soapenv:Body" ) // hb_UTF8ToStr()
    ELSE
-      ::cXmlRetorno := "Erro SOAP: XML retorno n„o contÈm soapenv:Body " + ::cXmlRetorno
+      ::cXmlRetorno := "Erro SOAP: XML retorno n√£o cont√©m soapenv:Body " + ::cXmlRetorno
    ENDIF
 
    RETURN Nil
